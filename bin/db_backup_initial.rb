@@ -12,11 +12,7 @@ option_parser = OptionParser.new do |opts|
   end
 
   # Create a flag
-  opts.on "-u USER" do |user|
-    unless user =~ /^.+\..+$/
-      raise ArgumentError, "USER must be in 'first.last' format"
-    end
-
+  opts.on "-u USER", /^.+\..+$/ do |user|
     options[:user] = user
   end
 
