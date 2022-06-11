@@ -1,10 +1,21 @@
 #!/usr/bin/env ruby
 
+class Dog
+  attr_reader :name
+  def initialize(name)
+    @name = name
+  end
+end
+
 # Bring OptionParser in
 require "optparse"
 
 options = {}
 option_parser = OptionParser.new do |opts|
+
+  opts.accept(Dog) do |name|
+    Dog.new(name)
+  end
 
   # Create a switch
   opts.on "-i", "--iteration" do
@@ -16,7 +27,11 @@ option_parser = OptionParser.new do |opts|
     options[:user] = user
   end
 
-  opts.on "-p PASSWORD" do |password|
+  # Example command-line usage:
+  # ruby db_backup/bin/db_backup_initial.rb -u Bob.bob -p McGruff
+  # puts options.inspect
+  # => {:user=>"Bob.bob", :password=>#<Dog:0x00007ff389823f78 @name="McGruff">}
+  opts.on "-p PASSWORD", Dog do |password|
     options[:password] = password
   end
 end
