@@ -5,24 +5,42 @@ require "optparse"
 
 options = {}
 option_parser = OptionParser.new do |opts|
+  executable_name = File.basename $PROGRAM_NAME
+  opts.banner = <<~BANNER
+    Backup one or more MySQL databases
+
+    Usage: #{executable_name} [options] database_name
+
+  BANNER
 
   # Create a switch
-  opts.on "-i", "--iteration" do
+  opts.on "-i", "--iteration",
+          "Indicate that this backup is an 'iteration' backup" do
     options[:iteration] = true
   end
 
   # Create a flag
-  opts.on "-u USER", /^.+\..+$/ do |user|
+  opts.on "-u USER",
+          "Database username, in first.last format",
+          /^.+\..+$/ do |user|
     options[:user] = user
   end
 
-  opts.on "-p PASSWORD" do |password|
+  opts.on "-p PASSWORD", "Database password" do |password|
     options[:password] = password
   end
 end
 
 option_parser.parse!
-puts options.inspect
+# puts options.inspect
+if ARGV.empty?
+  puts "error: you must supply a database_name"
+  puts
+  puts option_parser.help
+else
+  database_name = ARGV[0]
+  # proceed as normal to backup database_name
+end
 
 # database = ARGV.shift
 # username = ARGV.shift
