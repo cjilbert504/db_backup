@@ -18,16 +18,16 @@ option_parser = OptionParser.new do |opts|
   BANNER
 
   # Create a switch
-  opts.on "-i", "--iteration", "Indicate that this backup is an 'iteration' backup" do
+  opts.on "-i", "--end-of-iteration", "Indicate that this backup is an 'iteration' backup" do
     options[:iteration] = true
   end
 
   # Create a flag
-  opts.on "-u USER", "Database username, in first.last format", /^.+\..+$/ do |user|
+  opts.on "-u USER", "--username", "Database username, in first.last format", /^.+\..+$/ do |user|
     options[:user] = user
   end
 
-  opts.on "-p PASSWORD", "Database password" do |password|
+  opts.on "-p PASSWORD", "--password", "Database password" do |password|
     options[:password] = password
   end
 end
