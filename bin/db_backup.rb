@@ -18,15 +18,12 @@ option_parser = OptionParser.new do |opts|
   BANNER
 
   # Create a switch
-  opts.on "-i", "--iteration",
-          "Indicate that this backup is an 'iteration' backup" do
+  opts.on "-i", "--iteration", "Indicate that this backup is an 'iteration' backup" do
     options[:iteration] = true
   end
 
   # Create a flag
-  opts.on "-u USER",
-          "Database username, in first.last format",
-          /^.+\..+$/ do |user|
+  opts.on "-u USER", "Database username, in first.last format", /^.+\..+$/ do |user|
     options[:user] = user
   end
 
@@ -50,26 +47,26 @@ rescue OptionParser::InvalidArgument => ex
   puts option_parser
   exit_status |= 0b0001
 end
-  auth = ""
-  auth += "-u#{options[:user]} " if options[:user]
-  auth += "-p#{options[:password]} " if options[:password]
 
-  database_name = ARGV[0]
-  output_file = "#{database_name}.sql"
+auth = ""
+auth += "-u#{options[:user]} " if options[:user]
+auth += "-p#{options[:password]} " if options[:password]
 
-  command = "mysqldump #{auth}#{database_name} > #{output_file}"
+database_name = ARGV[0]
+output_file = "#{database_name}.sql"
 
-  puts "Running '#{command}'"
-  stdout_str, stderr_str, status = Open3.capture3(command)
+command = "mysqldump #{auth}#{database_name} > #{output_file}"
 
-  Signal.trap "SIGINT" do
-    FileUtils.rm output_file
-    exit 1
-  end
+puts "Running '#{command}'"
+stdout_str, stderr_str, status = Open3.capture3(command)
 
-  unless status.exitstatus == 0
-    STDERR.puts "There was a problem running '#{command}'"
-    STDERR.puts stderr_str.gsub(/^mysqldump: /, "")
-    exit 1
-  end
+Signal.trap "SIGINT" do
+  FileUtils.rm output_file
+  exit 1
+end
+
+unless status.exitstatus == 0
+  STDERR.puts "There was a problem running '#{command}'"
+  STDERR.puts stderr_str.gsub(/^mysqldump: /, "")
+  exit 1
 end
