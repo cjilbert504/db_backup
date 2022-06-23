@@ -2,6 +2,10 @@
 
 # Bring OptionParser in
 require "optparse"
+# Bring in English - which allows access to global variables via less cryptic names
+require "English"
+# Bring in Open3 to provide access to the standard error stream
+require "open3"
 
 options = {}
 option_parser = OptionParser.new do |opts|
@@ -31,28 +35,41 @@ option_parser = OptionParser.new do |opts|
   end
 end
 
-option_parser.parse!
-# puts options.inspect
-if ARGV.empty?
-  puts "error: you must supply a database_name"
-  puts
-  puts option_parser.help
-else
-  database_name = ARGV[0]
-  # proceed as normal to backup database_name
+exit_status = 0
+begin
+  option_parser.parse!
+  # puts options.inspect
+  if ARGV.empty?
+    puts "error: you must supply a database_name"
+    puts
+    puts option_parser.help
+    exit_status |= 0b0010
+  end
+rescue OptionParser::InvalidArgument => ex
+  puts ex.message
+  puts option_parser
+  exit_status |= 0b0001
 end
+  auth = ""
+  auth += "-u#{options[:user]} " if options[:user]
+  auth += "-p#{options[:password]} " if options[:password]
 
-# database = ARGV.shift
-# username = ARGV.shift
-# password = ARGV.shift
-# end_of_iter = ARGV.shift
+  database_name = ARGV[0]
+  output_file = "#{database_name}.sql"
 
-# if end_of_iter.nil?
-#   backup_file = database + Time.now.strftime "%Y%m%d"
-# else
-#   backup_file = database + end_of_iter
-# end
+  command = "mysqldump #{auth}#{database_name} > #{output_file}"
 
-# `mysqldump -u#{username} -p#{password} #{database} > #{backup_file}.sql`
-# `gzip #{backup_file}.sql`
-# end
+  puts "Running '#{command}'"
+  stdout_str, stderr_str, status = Open3.capture3(command)
+
+  Signal.trap "SIGINT" do
+    FileUtils.rm output_file
+    exit 1
+  end
+
+  unless status.exitstatus == 0
+    STDERR.puts "There was a problem running '#{command}'"
+    STDERR.puts stderr_str.gsub(/^mysqldump: /, "")
+    exit 1
+  end
+end
