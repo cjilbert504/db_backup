@@ -30,6 +30,10 @@ option_parser = OptionParser.new do |opts|
   opts.on "-p PASSWORD", "--password", "Database password" do |password|
     options[:password] = password
   end
+
+  opts.on "--no-gzip", "Do not compress the backup file" do
+    options[:gzip] = false
+  end
 end
 
 exit_status = 0
