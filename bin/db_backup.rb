@@ -34,6 +34,10 @@ option_parser = OptionParser.new do |opts|
   opts.on "--no-gzip", "Do not compress the backup file" do
     options[:gzip] = false
   end
+
+  opts.on "--[no-]force", "Overwrite existing files" do |force|
+    options[:force] = true
+  end
 end
 
 exit_status = 0
@@ -60,6 +64,15 @@ database_name = ARGV[0]
 output_file = "#{database_name}.sql"
 
 command = "mysqldump #{auth}#{database_name} > #{output_file}"
+
+if File.exists? output_file
+  if options[:force]
+    STDERR.puts "Overwriting #{output_file}"
+  else
+    STDERR.puts "error: #{output_file} exists, use --force to overwrite"
+    exit 1
+  end
+end
 
 puts "Running '#{command}'"
 stdout_str, stderr_str, status = Open3.capture3(command)
