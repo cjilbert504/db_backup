@@ -22,7 +22,7 @@ if File.exists?(CONFIG_FILE)
   config_options = YAML.load_file(CONFIG_FILE)
   options.merge!(config_options)
 else
-  File.open(CONFIG_FILE, "w") { |file| YAML::dump(optns, file) }
+  File.open(CONFIG_FILE, "w") { |file| YAML::dump(options, file) }
   STDERR.puts "Initializedconfiguration file in #{CONFIG_FILE}"
 end
 
