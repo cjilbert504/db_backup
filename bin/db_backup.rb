@@ -6,10 +6,29 @@ require "optparse"
 require "English"
 # Bring in Open3 to provide access to the standard error stream
 require "open3"
+# Bring in yaml to allow for parsing of config files
+require "yaml"
 
-options = {}
+options = {
+  gzip: true,
+  force: false,
+  "end-of-iteration": false,
+  username: nil,
+  password: nil
+}
+
+CONFIG_FILE = File.join(ENV["HOME"], ".db_backup.rc.yaml")
+if File.exists?(CONFIG_FILE)
+  config_options = YAML.load_file(CONFIG_FILE)
+  options.merge!(config_options)
+else
+  File.open(CONFIG_FILE, "w") { |file| YAML::dump(optns, file) }
+  STDERR.puts "Initializedconfiguration file in #{CONFIG_FILE}"
+end
+
 option_parser = OptionParser.new do |opts|
   executable_name = File.basename $PROGRAM_NAME
+
   opts.banner = <<~BANNER
     Backup one or more MySQL databases
 
@@ -18,32 +37,32 @@ option_parser = OptionParser.new do |opts|
   BANNER
 
   # Create a switch
-  opts.on "-i", "--end-of-iteration", "Indicate that this backup is an 'iteration' backup" do
+  opts.on("-i", "--end-of-iteration", "Indicate that this backup is an 'iteration' backup") do
     options[:iteration] = true
   end
 
   # Create a flag
-  opts.on "-u USER", "--username", "Database username, in first.last format", /^.+\..+$/ do |user|
+  opts.on("-u USER", "--username", "Database username, in first.last format", /^.+\..+$/) do |user|
     options[:user] = user
   end
 
-  opts.on "-p PASSWORD", "--password", "Database password" do |password|
+  opts.on("-p PASSWORD", "--password", "Database password") do |password|
     options[:password] = password
   end
 
-  opts.on "--no-gzip", "Do not compress the backup file" do
+  opts.on("--no-gzip", "Do not compress the backup file") do
     options[:gzip] = false
   end
 
-  opts.on "--[no-]force", "Overwrite existing files" do |force|
+  opts.on("--[no-]force", "Overwrite existing files") do |force|
     options[:force] = true
   end
 end
 
 exit_status = 0
+
 begin
   option_parser.parse!
-  # puts options.inspect
   if ARGV.empty?
     puts "error: you must supply a database_name"
     puts
@@ -65,7 +84,7 @@ output_file = "#{database_name}.sql"
 
 command = "mysqldump #{auth}#{database_name} > #{output_file}"
 
-if File.exists? output_file
+if File.exists?(output_file)
   if options[:force]
     STDERR.puts "Overwriting #{output_file}"
   else
@@ -77,7 +96,7 @@ end
 puts "Running '#{command}'"
 stdout_str, stderr_str, status = Open3.capture3(command)
 
-Signal.trap "SIGINT" do
+Signal.trap("SIGINT")do
   FileUtils.rm output_file
   exit 1
 end
