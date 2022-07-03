@@ -1,0 +1,39 @@
+= `db_backup` - Iteration-aware MySQL database backups
+
+Author:: David Copeland (mailto:dave@example.com)
+Copyright:: Copyright (c) 2022 by David Copeland
+License:: Distributes under the Apache License,
+          see LICENSE.txt in the source distro
+
+This application provides an easy interface to backing up MySQL databases,
+using a canonical naming scheme for both daily backups and
+"end-of-iteration" backups.
+
+== Install
+
+Install:
+
+  gem install db_backup
+
+== Use
+
+Backup a database:
+
+  db_backup.rb my_database
+
+For more help:
+
+  db_backup.rb --help
+  gem man db_backup.rb
+
+== Developing for `db_backup`
+
+First, install bundler:
+
+  gem install bundler
+
+Get the development dependencies
+
+  bundle install
+
+Most of the code is in `bin/db_backup.rb`.

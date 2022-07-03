@@ -1,0 +1,1 @@
+var search_data = {"index":{"searchIndex":["object","readme"],"longSearchIndex":["object",""],"info":[["Object","","Object.html","",""],["README","","README_rdoc.html","","<p>‘db_backup` - Iteration-aware MySQL database backups\n<p>Author &mdash; David Copeland (dave@example.com)\n<p>Copyright … &mdash; "]]}}
